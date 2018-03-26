@@ -24,6 +24,7 @@
 
 !Amazon Prime Video
 ||primevideo.com/*?ref=
+||primevideo.com/*&ref=
 
 !Apple
 ||itunes.apple.com/*?at=
@@ -158,8 +159,9 @@
 ||apessay.com/*?rid=
 ||apessay.com/*&rid=
 
-!Tatacliq
+!TataCLiQ
 ||tatacliq.com/*?cid=af:
+||tatacliq.com/*&cid=af:
 
 !Zaful
 ||zaful.com/*?lkid=
