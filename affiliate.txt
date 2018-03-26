@@ -22,6 +22,9 @@
 ||amazon.fr/*?tag=
 ||amazon.fr/*&tag=
 
+!Amazon Prime Video
+||primevideo.com/*?ref=
+
 !Apple
 ||itunes.apple.com/*?at=
 ||itunes.apple.com/*&at=
@@ -155,6 +158,10 @@
 ||apessay.com/*?rid=
 ||apessay.com/*&rid=
 
+!Tatacliq
+||tatacliq.com/*?cid=af:
+
 !Zaful
 ||zaful.com/*?lkid=
 ||zaful.com/*&lkid=
+
