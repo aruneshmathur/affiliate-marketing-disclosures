@@ -29,6 +29,8 @@
 !Apple
 ||itunes.apple.com/*?at=
 ||itunes.apple.com/*&at=
+||apple.com/*?afid=
+||apple.com/*&afid=
 
 !Audiobooks
 ||affiliates.audiobooks.com/*?a_aid=*&a_bid=
