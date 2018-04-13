@@ -1,2 +1,2 @@
 # Affiliate Marketing Disclosure Study
-Code and data belonging to affiliate marketing disclosure study.
+Code and data belonging to the affiliate marketing disclosure study.
