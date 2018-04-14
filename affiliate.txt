@@ -122,6 +122,10 @@
 ||kontrolfreek.com/*?a_aid=
 ||kontrolfreek.com/*&a_aid=
 
+!Ladbrokes
+||online.ladbrokes.com/promoRedirect?key=
+||online.ladbrokes.com/promoRedirect?*&key=
+
 !Makeup Geek
 ||makeupgeek.com/*?acc=
 ||makeupgeek.com/*&acc=
