@@ -130,8 +130,9 @@
 ||makeupgeek.com/*?acc=
 ||makeupgeek.com/*&acc=
 
-NordVPN
-||go.nordvpn.net/aff_c^
+!HasOffers
+/aff_c?*&aff_id=
+/aff_c?aff_id=
 
 !Pepperjam Network
 ||gopjn.com/t/
