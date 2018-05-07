@@ -106,6 +106,10 @@
 ||gtomegaracing.com/*?tracking=
 ||gtomegaracing.com/*&tracking=
 
+!HasOffers
+/aff_c?*&aff_id=
+/aff_c?aff_id=
+
 !Hotellook
 ||search.hotellook.com/*?marker=
 ||search.hotellook.com/*&marker=
@@ -129,10 +133,6 @@
 !Makeup Geek
 ||makeupgeek.com/*?acc=
 ||makeupgeek.com/*&acc=
-
-!HasOffers
-/aff_c?*&aff_id=
-/aff_c?aff_id=
 
 !Pepperjam Network
 ||gopjn.com/t/
@@ -172,6 +172,10 @@
 !TataCLiQ
 ||tatacliq.com/*?cid=af:
 ||tatacliq.com/*&cid=af:
+
+!Thermoworks
+||thermoworks.com/*?tw=
+||thermoworks.com/*&tw=
 
 !Zaful
 ||zaful.com/*?lkid=
