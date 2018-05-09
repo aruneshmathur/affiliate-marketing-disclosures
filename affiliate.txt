@@ -76,6 +76,9 @@
 ||qksrv.net^
 ||tkqlhce.com/click-
 
+!DesignModo
+||designmodo.com/?u=
+
 !Ebay
 ||rover.ebay.com/*?campid=
 ||rover.ebay.com/*&campid=
