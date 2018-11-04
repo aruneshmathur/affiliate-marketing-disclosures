@@ -1,0 +1,347 @@
+---
+title: "Pinterest Analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(grid)
+library(gridExtra)
+library(lattice)
+library(tigerstats)
+library(formattable)
+library(uaparserjs)
+library(reshape2)
+library(nlme)
+library(likert)
+library(ordinal)
+options(dplyr.print_max = 1e9)
+```
+
+###Initial Setup
+Read in the data from the file:
+```{r}
+dat <- read.csv('pinterest_experiment.csv')
+nrow(dat)
+```
+
+How many duplicate responses do we have?
+```{r}
+summary(duplicated(dat["workerId"]))
+```
+
+What are the column names?
+```{r}
+names(dat)
+```
+
+###Data Wrangling
+
+Rename the columns:
+```{r}
+dat <- dat %>% rename(pin.impression = `What.is.your.overall.impression.of.the.pin.`,
+                      item.impression = `After.observing.the.pin..what.is.your.overall.impression.of.the.item.shown.in.the.image.above.`,
+                      creator.favors = `How.much.do.you.think.the.pin.creator.favors.the.item.shown.in.the.image.above.`,
+                      relationship = `How.likely.do.you.think.there.is.a.relationship.between.the.pin.creator.and.the.organization.selling.the.item.`,
+                      age = `In.which.year.were.you.born.`,
+                      gender = `What.is.your.gender.`,
+                      education = `What.is.the.highest.level.of.education.you.have.completed.`,
+                      income = `What.is.your.annual.household.income.`,
+                      account.pinterest = `Pinterest.Which.of.the.following.social.media.platforms.do.you.have.an.account.on.`,
+                      visit.pinterest = `Pinterest.How.often.do.you.visit.each.of.the.following.social.media.platforms.`,
+                      post.pinterest = `Pinterest.How.often.do.you.post.content.on.each.of.the.following.social.media.platforms.`)
+```
+
+Modify the demographics:
+```{r}
+dat <- dat %>% mutate(age = 2018 - age)
+```
+
+Change the relevant columns to factors:
+
+```{r}
+dat <- dat %>% mutate(Condition = factor(Condition), 
+                      Pin = factor(Pin), 
+                      PinId = factor(PinId))
+
+levels(dat$Pin) <- c("Soap", "Seed", "Shoes", "Blanket", "Bed")
+levels(dat$Condition) <- c("Control", "AffTop", "AffBottom", "ExplTop", "ExplBottom")
+```
+
+
+Create a new column indicating the disclosure type:
+
+```{r}
+dat <- dat %>% mutate(Disclosure = ifelse(Condition == "ExplTop" | Condition == "ExplBottom", "Expl", ifelse(Condition == "AffTop" | Condition == "AffBottom", "Aff", "Control")))
+```
+
+Change the relevant columns to numeric:
+
+```{r}
+summary(dat$pin.impression)
+dat <- dat %>% mutate(pin.impression = (factor(pin.impression, levels=c("Extremely Negative", "Somewhat Negative", "Neutral", "Somewhat Positive", "Extremely Positive"))))
+summary(dat$pin.impression)
+
+dat <- dat %>% mutate(pin.impression_numeric = as.numeric(pin.impression))
+summary(dat$pin.impression_numeric)
+
+summary(dat$item.impression)
+dat <- dat %>% mutate(item.impression = (factor(item.impression, levels=c("Extremely Negative", "Somewhat Negative", "Neutral", "Somewhat Positive", "Extremely Positive"))))
+summary(dat$item.impression)
+
+dat <- dat %>% mutate(item.impression_numeric = as.numeric(item.impression))
+summary(dat$item.impression)
+
+summary(dat$creator.favors)
+dat <- dat %>% mutate(creator.favors = (factor(creator.favors, levels=c("Does Not Favor At All", "Slightly Favors", "Somewhat Favors", "Moderately Favors", "Strongly Favors"))))
+summary(dat$creator.favors)
+
+dat <- dat %>% mutate(creator.favors_numeric = as.numeric(creator.favors))
+summary(dat$creator.favors)
+
+summary(dat$relationship)
+dat <- dat %>% mutate(relationship = (factor(relationship, levels=c("Extremely Unlikely", "Somewhat Unlikely", "Neutral", "Somewhat Likely", "Extremely Likely"))))
+summary(dat$relationship)
+
+dat <- dat %>% mutate(relationship_numeric = as.numeric(relationship))
+summary(dat$relationship)
+```
+
+
+###User Demographics
+
+How old were the users?
+
+```{r}
+summary(dat$age)
+sd(dat$age)
+```
+
+How were they distributed by gender?
+
+```{r}
+rowPerc(xtabs(~gender, data=dat))
+```
+
+How were they distributed by education?
+
+```{r}
+rowPerc(xtabs(~education, data=dat))
+```
+
+How many users do we have in each condition across the survey?
+```{r}
+xtabs(~Condition + Pin, data=dat)
+```
+
+How many users do we have in each disclosure across the suvrey?
+```{r}
+xtabs(~Disclosure + Pin, data=dat)
+```
+
+How many users vs non-users do we have?
+```{r}
+rowPerc(xtabs(~account.pinterest, data=dat))
+```
+
+How often do users visit Pinterest?
+```{r}
+rowPerc(xtabs(~visit.pinterest, data=dat))
+```
+
+How often do users post on Pinterest?
+```{r}
+rowPerc(xtabs(~post.pinterest, data=dat))
+```
+
+Let's write a simple graphing utility.
+```{r}
+likert_plot <- function(data, pin_factor, col) {
+  filt_data <- data %>% filter(Pin == pin_factor)
+  cols <- c(col)
+  cols <- setNames(cols, c(pin_factor))
+  likert_data <- likert(filt_data %>% select(col) %>% rename_(.dots=cols), grouping=filt_data$Condition)
+  return(plot(likert_data, centered=FALSE, legend.position="none"))
+}
+
+grid_likert_plot <- function(data, col) {
+  p1 <- likert_plot(data, "Soap", col)
+  p2 <- likert_plot(data, "Seed", col)
+  p3 <- likert_plot(data, "Shoes", col)
+  p4 <- likert_plot(data, "Blanket", col)
+  p5 <- likert_plot(data, "Bed", col)
+  
+  return(grid.arrange(p1, p2, p3, p4, p5))
+}
+
+likert_plot_combined <- function(data, col) {
+  likert_data <- likert(data %>% select(col), grouping=data$Condition)
+  return(plot(likert_data, centered=FALSE, legend.position="none"))
+}
+```
+
+Let's also write a utility that will generate the logit plot.
+```{r}
+po_plot_helper <- function(data, pin_factor, col) {
+  filt_data <- data %>% filter(Pin == pin_factor)
+  mat <- as.data.frame.matrix(xtabs(formula(paste0("~Condition + ", col)), filt_data))
+  
+  new_mat <- matrix(nrow=5, ncol=4)
+  
+  for(i in 1:4) {
+     first_set <- mat[, c(1:i)]
+     second_set <- mat[, c((i+1):5)]
+     
+     if(!is.null(dim(first_set))) {
+        first_set <- as.integer(rowSums(first_set))
+     }
+     
+      if(!is.null(dim(second_set))) {
+        second_set <- as.integer(rowSums(second_set))
+     }
+ 
+     result = log(first_set/second_set)
+     
+     new_mat[, i] <- result
+  }
+  
+  rownames(new_mat) <- rownames(mat)
+  return(ggplot(melt(new_mat), aes(x=Var1, y=value, col=factor(Var2), group=factor(Var2))) + geom_line() + xlab("Condition") + ylab("Logits") + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position="none") + ggtitle(pin_factor))
+} 
+
+po_plot <- function(data, col) {
+  p1 <- po_plot_helper(data, "Soap", col)
+  p2 <- po_plot_helper(data, "Seed", col)
+  p3 <- po_plot_helper(data, "Shoes", col)
+  p4 <- po_plot_helper(data, "Blanket", col)
+  p5 <- po_plot_helper(data, "Bed", col)
+  
+  return(grid.arrange(p1, p2, p3, p4, p5))
+}
+```
+
+###What is your overall impression of the pin?
+
+Let's first examine the distribution of this question across the different pins.
+
+```{r}
+xtabs(~Condition + pin.impression, data=dat)
+```
+
+Let's visualize the data.
+
+```{r}
+grid_likert_plot(dat, "pin.impression")
+```
+
+Let's visualize the logits.
+
+```{r}
+po_plot(dat, "pin.impression")
+```
+
+Next, let's build a ordinal regression model.
+
+```{r, warning=FALSE}
+model <- clmm2(pin.impression ~ Condition, random=Pin, data=dat, Hess = TRUE)
+summary(model)
+
+exp(coef(model))
+exp(confint.default(model))
+```
+
+
+###What is your overall impression of the item?
+
+Let's first examine the distribution of this question across the different pins.
+
+```{r}
+xtabs(~Condition + item.impression, data=dat)
+```
+
+Let's visualize the data.
+
+```{r}
+grid_likert_plot(dat, "item.impression")
+```
+
+Let's visualize the logits.
+
+```{r}
+po_plot(dat, "item.impression")
+```
+
+Next, let's build a ordinal regression model.
+
+```{r, warning=FALSE}
+model <- clmm2(item.impression ~ Condition, random=Pin, data=dat, Hess = TRUE)
+summary(model)
+
+exp(coef(model))
+exp(confint.default(model))
+```
+
+
+###How much do you think the creator favors the item?
+
+Let's first examine the distribution of this question across the different pins.
+
+```{r}
+xtabs(~Condition + creator.favors, data=dat)
+```
+
+Let's visualize the data.
+
+```{r}
+grid_likert_plot(dat, "creator.favors")
+likert_plot_combined(dat, "creator.favors")
+```
+
+Let's visualize the logits.
+
+```{r}
+po_plot(dat, "creator.favors")
+```
+
+Next, let's build a ordinal regression model.
+
+```{r, warning=FALSE}
+model <- clmm2(creator.favors ~ Condition, random=Pin, data=dat, Hess = TRUE)
+summary(model)
+
+exp(coef(model))
+exp(confint.default(model))
+```
+
+###How likely do you think there is a relationship between the content creator and the merchant?
+
+Let's first examine the distribution of this question across the different pins.
+
+```{r}
+xtabs(~Condition + relationship, data=dat)
+```
+
+Let's visualize the data.
+
+```{r}
+grid_likert_plot(dat, "relationship")
+```
+
+Let's visualize the logits.
+
+```{r}
+po_plot(dat, "relationship")
+```
+
+Next, let's build a ordinal regression model.
+
+```{r, warning=FALSE}
+model <- clmm2(relationship ~ Condition, random=Pin, data=dat, Hess = TRUE, link="logistic")
+summary(model)
+
+exp(coef(model))
+exp(confint.default(model))
+```
