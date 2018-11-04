@@ -82,7 +82,6 @@ def fill_samples(sample_list):
 
 
 if __name__ == '__main__':
-
   db = dataset.connect('sqlite:///youtube.db')
 
   result = init_samples()

@@ -87,7 +87,6 @@ def fill_channel(channel_id_list):
 
 
 if __name__ == '__main__':
-
   db = dataset.connect('sqlite:///youtube.db')
 
   channels = db.query('SELECT (channelId) FROM channelSamples WHERE channelId NOT IN (SELECT channelId FROM channelStatus WHERE completedStatus = 2)')
