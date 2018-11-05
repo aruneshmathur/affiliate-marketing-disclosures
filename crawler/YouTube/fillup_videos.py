@@ -96,7 +96,7 @@ def fill_videos(video_id_list):
 
 
 if __name__ == '__main__':
-  db = dataset.connect('sqlite:////n/fs/pets/data/database/yt/yt.db')
+  db = dataset.connect('sqlite:///youtube.db')
 
   videos = db.query('SELECT * FROM sampleVideos WHERE id NOT IN (SELECT sampleVideoId FROM sampleVideosStatus WHERE completedStatus = 2)')
 
