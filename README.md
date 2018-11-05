@@ -16,7 +16,7 @@ The repository has three primary components:
 * `user-study/`: Contains data from the YouTube and Pinterest experiments, along with the code to run the statistical analyses
 * `affiliate_markting_links.txt`: Contains Adblock Plus-style filters corresponding to the affiliate marketing URLs we discovered
 
-Please navigate to each directory for detailed explanations.
+Please navigate to each directory for a more detailed explanation.
 
 ## Citation
 Please use the following BibTeX to cite our paper:
